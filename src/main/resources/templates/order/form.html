@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('주문/결제')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('')}"></header>
+<th:block th:replace="~{fragments/layout :: flash}"></th:block>
+<main class="container">
+    <h2 style="margin-top:0">주문 / 결제</h2>
+    <form th:action="@{/order}" th:object="${form}" method="post" onsubmit="return mockPay(this)">
+        <input type="hidden" th:each="id : *{cartItemIds}" name="cartItemIds" th:value="${id}">
+        <div class="two">
+            <div>
+                <div class="box">
+                    <h3>배송지
+                        <button type="button" id="load-addr" class="btn soft sm" style="float:right" onclick="loadAddress(this)"
+                                th:attr="data-receiver-name=${member.name},data-receiver-phone=${member.phone},data-zipcode=${member.zipcode},data-address=${member.address},data-address-detail=${member.addressDetail}">기본 배송지 불러오기</button></h3>
+                    <div class="form-row"><span>받는 분</span><div><input th:field="*{receiverName}"><div class="err" th:errors="*{receiverName}"></div></div></div>
+                    <div class="form-row"><span>연락처</span><div><input th:field="*{receiverPhone}"><div class="err" th:errors="*{receiverPhone}"></div></div></div>
+                    <div class="form-row"><span>우편번호</span><div><input th:field="*{zipcode}" style="max-width:160px"><div class="err" th:errors="*{zipcode}"></div></div></div>
+                    <div class="form-row"><span>주소</span><div><input th:field="*{address}"><div class="err" th:errors="*{address}"></div></div></div>
+                    <div class="form-row"><span>상세주소</span><input th:field="*{addressDetail}"></div>
+                    <div class="form-row"><span>요청사항</span><input th:field="*{memo}" placeholder="예) 문 앞에 놓아 주세요"></div>
+                </div>
+                <div class="box">
+                    <h3 th:text="'주문 상품 (' + ${cart.items.size()} + ')'">주문 상품</h3>
+                    <div th:each="c : ${cart.items}" style="display:flex;justify-content:space-between;align-items:center;margin:8px 0">
+                        <span style="display:flex;gap:10px;align-items:center"><span class="mini-thumb"><img th:src="${c.product.thumbnail}"></span>
+                            <span th:text="${c.product.name} + ' × ' + ${c.quantity}"></span></span>
+                        <b th:text="${#numbers.formatInteger(c.totalPrice, 0, 'COMMA')} + '원'"></b>
+                    </div>
+                </div>
+                <div class="box">
+                    <h3>결제 수단</h3>
+                    <label th:each="m : ${methods}" style="margin-right:22px">
+                        <input type="radio" th:field="*{paymentMethod}" th:value="${m}" th:id="'pm-' + ${#strings.toLowerCase(m)}" th:attr="data-label=${m.label}">
+                        <span th:text="${m.label}"></span></label>
+                    <p class="muted" style="font-size:13px;margin-bottom:0">※ 실제 결제는 이루어지지 않는 모의 결제입니다.</p>
+                </div>
+            </div>
+            <div class="sum">
+                <b>최종 결제 금액</b>
+                <div class="row"><span>상품금액</span><span th:text="${#numbers.formatInteger(cart.productTotal, 0, 'COMMA')} + '원'"></span></div>
+                <div class="row"><span>배송비</span><span th:text="${#numbers.formatInteger(cart.shippingFee, 0, 'COMMA')} + '원'"></span></div>
+                <div class="row"><b>합계</b><span class="tot" th:text="${#numbers.formatInteger(cart.total, 0, 'COMMA')} + '원'"></span></div>
+                <label style="font-size:13px"><input type="checkbox" th:field="*{agree}" id="agree"> 주문 내용 확인 및 결제에 동의합니다</label>
+                <div class="err" th:errors="*{agree}"></div>
+                <div class="err" th:errors="*{cartItemIds}"></div>
+                <button type="submit" id="pay" class="btn terra block" style="margin-top:14px">결제하기</button>
+            </div>
+        </div>
+    </form>
+    <div class="modal" id="payModal"><div class="in"><h3>모의 결제 진행 중</h3><div class="spin"></div>
+        <p class="muted"><span id="payMethod"></span> · <span th:text="${#numbers.formatInteger(cart.total, 0, 'COMMA')} + '원'"></span></p></div></div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
