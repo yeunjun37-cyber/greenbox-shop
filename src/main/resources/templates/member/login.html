@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('로그인')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('')}"></header>
+<th:block th:replace="~{fragments/layout :: flash}"></th:block>
+<main class="container">
+    <div class="auth">
+        <h2 style="margin-top:0">로그인</h2>
+        <p class="err" th:if="${param.error}">이메일 또는 비밀번호가 올바르지 않습니다.</p>
+        <form th:action="@{/member/login}" method="post">
+            <div style="margin:14px 0"><input id="email" name="email" type="email" placeholder="이메일" required></div>
+            <div style="margin:14px 0"><input id="password" name="password" type="password" placeholder="비밀번호" required></div>
+            <button id="do-login" class="btn block" type="submit">로그인</button>
+        </form>
+        <p class="muted" style="text-align:center;font-size:14px">아직 회원이 아니신가요? <a th:href="@{/member/join}" style="color:var(--g);font-weight:700">회원가입</a></p>
+        <div class="box muted" style="font-size:13px;margin-top:20px">
+            체험 계정 — 회원: chorok@greenbox.com / greenbox1234<br>관리자: admin@greenbox.com / admin1234
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
