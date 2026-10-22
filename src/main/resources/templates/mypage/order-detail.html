@@ -11,12 +11,16 @@
             <h2 style="margin-top:0">주문 상세 <span class="tag" th:text="${order.status.label}"></span></h2>
             <p class="muted" th:text="'주문번호 ' + ${order.orderNo} + ' · ' + ${#temporals.format(order.orderedAt, 'yyyy.MM.dd HH:mm')}"></p>
             <table class="tbl">
-                <tr><th>상품</th><th style="width:100px">단가</th><th style="width:70px">수량</th><th style="width:110px">금액</th></tr>
+                <tr><th>상품</th><th style="width:100px">단가</th><th style="width:70px">수량</th><th style="width:110px">금액</th><th style="width:110px">리뷰</th></tr>
                 <tr th:each="i : ${order.items}">
                     <td><span style="display:flex;gap:10px;align-items:center"><span class="mini-thumb"><img th:src="${i.product.thumbnail}"></span><span th:text="${i.product.name}"></span></span></td>
                     <td th:text="${#numbers.formatInteger(i.orderPrice, 0, 'COMMA')} + '원'"></td>
                     <td th:text="${i.quantity}"></td>
                     <td th:text="${#numbers.formatInteger(i.totalPrice, 0, 'COMMA')} + '원'"></td>
+                    <td>
+                        <a th:if="${order.status.name() == 'DELIVERED' and !reviewed[i.id]}" class="btn terra sm" th:href="@{/reviews/new(orderItemId=${i.id})}" th:id="'review-' + ${i.id}">리뷰쓰기</a>
+                        <span th:if="${reviewed[i.id]}" class="muted">작성완료</span>
+                    </td>
                 </tr>
             </table>
             <div class="box" style="margin-top:18px">
