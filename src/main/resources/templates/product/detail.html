@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head(${product.name})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('products')}"></header>
+<th:block th:replace="~{fragments/layout :: flash}"></th:block>
+<main class="container" th:with="p=${product}">
+    <p class="muted" style="font-size:13px">홈 › <span th:text="${p.category.name}"></span> › <span th:text="${p.name}"></span></p>
+    <div class="detail">
+        <div class="big"><img th:src="${p.thumbnail}" th:alt="${p.name}"></div>
+        <div>
+            <h1 style="margin:6px 0" th:text="${p.name}">상품명</h1>
+            <div class="stars" th:if="${!reviews.empty}">★ <span th:text="${rating}"></span> <span class="muted">(리뷰 <span th:text="${reviews.size()}"></span>)</span></div>
+            <div class="price" style="margin:14px 0" th:text="${#numbers.formatInteger(p.price, 0, 'COMMA')} + '원'"></div>
+            <div>
+                <span class="tag" th:if="${p.difficulty}" th:text="'난이도 ' + ${p.difficulty.label}"></span>
+                <span class="tag" th:if="${p.light}" th:text="${p.light.label}"></span>
+                <span class="tag" th:if="${p.waterCycle}" th:text="'물주기 ' + ${p.waterCycle} + '일'"></span>
+                <span class="tag g" th:if="${p.plant and p.isPetSafe()}">반려동물 안전</span>
+                <span class="tag t" th:if="${p.plant and !p.isPetSafe()}">반려동물 주의</span>
+            </div>
+            <hr style="border:none;border-top:1px solid var(--line);margin:22px 0">
+            <form th:action="@{/cart}" method="post">
+                <input type="hidden" name="productId" th:value="${p.id}">
+                <div style="display:flex;justify-content:space-between;align-items:center"><span>수량</span>
+                    <span class="qty"><button type="button" onclick="stepQty('qty',-1)">−</button>
+                        <input id="qty" name="quantity" value="1" th:attr="data-price=${p.price}">
+                        <button type="button" id="qty-plus" onclick="stepQty('qty',1)">+</button></span></div>
+                <div style="display:flex;justify-content:space-between;margin:18px 0"><span>총 상품금액</span>
+                    <b id="detailTotal" style="font-size:22px;color:var(--terra)" th:text="${#numbers.formatInteger(p.price, 0, 'COMMA')} + '원'"></b></div>
+                <div class="muted" style="font-size:13px">재고 <span th:text="${p.stock}"></span>개 · 3만원 이상 무료배송</div>
+                <div style="display:flex;gap:10px;margin-top:22px" th:if="${p.onSale}">
+                    <button type="button" id="wish" class="btn line" style="width:56px" th:text="${wished} ? '♥' : '♡'"
+                            th:attr="onclick=|toggleWish(this, ${p.id})|">♡</button>
+                    <button type="submit" id="add-cart" class="btn line" style="flex:1">장바구니</button>
+                    <button type="submit" id="buy-now" name="buyNow" value="true" class="btn" style="flex:1">바로 구매</button>
+                </div>
+                <div th:unless="${p.onSale}" class="btn soft block" style="margin-top:22px" th:text="${p.status.label} + ' 상품입니다'"></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <a id="tab-info" th:href="@{/products/{id}(id=${p.id},tab='info')}" th:classappend="${tab == 'info'} ? 'on'">상세정보</a>
+        <a id="tab-guide" th:href="@{/products/{id}(id=${p.id},tab='guide')}" th:classappend="${tab == 'guide'} ? 'on'">관리 가이드</a>
+        <a id="tab-review" th:href="@{/products/{id}(id=${p.id},tab='review')}" th:classappend="${tab == 'review'} ? 'on'" th:text="'리뷰 (' + ${reviews.size()} + ')'"></a>
+        <a id="tab-qna" th:href="@{/products/{id}(id=${p.id},tab='qna')}" th:classappend="${tab == 'qna'} ? 'on'" th:text="'Q&A (' + ${qnas.size()} + ')'"></a>
+    </div>
+
+    <div th:if="${tab == 'info'}" style="padding:22px 0;line-height:1.8" th:text="${p.description}"></div>
+
+    <div th:if="${tab == 'guide'}">
+        <div class="guide" th:if="${p.plant}">
+            <div><b>💧 물주기</b>겉흙이 마르면 듬뿍<br>약 <span th:text="${p.waterCycle}"></span>일 주기</div>
+            <div><b>☀ 빛</b><span th:text="${p.light.label}"></span><br>직사광선보다 밝은 간접광</div>
+            <div><b>🌡 온도</b>18~27℃<br>겨울철 냉해 주의</div>
+            <div><b>🐾 반려동물</b><span th:text="${p.isPetSafe()} ? '안전한 식물이에요' : '섭취 시 주의가 필요해요'"></span></div>
+        </div>
+        <p class="muted" th:unless="${p.plant}" style="padding:22px 0">식물 관리 가이드가 없는 용품입니다.</p>
+        <p class="muted" style="font-size:13px" th:if="${p.plant}">구매 후 <a th:href="@{/myplants}" style="color:var(--g);font-weight:700">내 식물</a>에 등록하면 다음 물주기 날짜를 알려 드려요.</p>
+    </div>
+
+    <div th:if="${tab == 'review'}" style="padding-top:18px">
+        <p class="muted" th:if="${reviews.empty}">아직 작성된 리뷰가 없습니다. 배송완료된 주문의 마이페이지에서 리뷰를 작성할 수 있어요.</p>
+        <div class="box" th:each="r : ${reviews}">
+            <span class="stars" th:text="${#strings.repeat('★', r.rating)} + ${#strings.repeat('☆', 5 - r.rating)}"></span>
+            <b th:text="${r.member.name}"></b> <span class="muted" style="font-size:13px" th:text="${#temporals.format(r.createdAt, 'yyyy.MM.dd')}"></span>
+            <p th:text="${r.content}"></p>
+            <img th:if="${r.imgUrl}" th:src="${r.imgUrl}" style="max-height:160px;border-radius:10px">
+        </div>
+    </div>
+
+    <div th:if="${tab == 'qna'}" style="padding-top:18px">
+        <div class="box" sec:authorize="isAuthenticated()">
+            <h3>상품 문의하기</h3>
+            <form th:action="@{/qna}" method="post">
+                <input type="hidden" name="productId" th:value="${p.id}">
+                <input name="title" placeholder="제목" required style="margin-bottom:8px">
+                <textarea name="content" placeholder="문의 내용을 입력하세요" required></textarea>
+                <div class="inline" style="justify-content:space-between;margin-top:8px">
+                    <label><input type="checkbox" name="secret" value="true"> 비밀글</label>
+                    <button class="btn sm" type="submit">문의 등록</button>
+                </div>
+            </form>
+        </div>
+        <table class="tbl">
+            <tr><th style="width:90px">상태</th><th>제목</th><th style="width:110px">작성자</th><th style="width:110px">작성일</th></tr>
+            <th:block th:each="q : ${qnas}">
+                <tr>
+                    <td><span class="tag" th:classappend="${q.answered} ? 'g'" th:text="${q.answered} ? '답변완료' : '답변대기'"></span></td>
+                    <td><span th:if="${q.canRead(loginId, isAdmin)}" th:text="${q.title}"></span><span th:unless="${q.canRead(loginId, isAdmin)}" class="muted">🔒 비밀글입니다</span></td>
+                    <td th:text="${q.member.name}"></td>
+                    <td th:text="${#temporals.format(q.createdAt, 'yyyy.MM.dd')}"></td>
+                </tr>
+                <tr th:if="${q.canRead(loginId, isAdmin)}">
+                    <td></td>
+                    <td colspan="3" class="muted"><div th:text="${q.content}"></div>
+                        <div th:if="${q.answered}" style="margin-top:8px;color:var(--g)">↳ <b>답변</b> <span th:text="${q.answer}"></span></div></td>
+                </tr>
+            </th:block>
+        </table>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
