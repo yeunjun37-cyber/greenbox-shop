@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('주문내역')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('')}"></header>
+<th:block th:replace="~{fragments/layout :: flash}"></th:block>
+<main class="container">
+    <div class="layout">
+        <aside th:replace="~{fragments/layout :: mypageSide(${menu})}"></aside>
+        <div>
+            <h2 style="margin-top:0">주문내역</h2>
+            <div class="stat">
+                <div th:each="e : ${counts}" th:if="${e.key.name() != 'CANCELED' or e.value > 0}" th:text="${e.key.label} + ' ' + ${e.value}"></div>
+            </div>
+            <p class="muted" th:if="${orders.empty}">주문 내역이 없습니다.</p>
+            <div class="order-card" th:each="o : ${orders}">
+                <span class="mini-thumb" style="width:70px;height:62px"><img th:src="${o.items[0].product.thumbnail}"></span>
+                <div style="flex:1">
+                    <div class="muted" style="font-size:13px" th:text="${#temporals.format(o.orderedAt, 'yyyy.MM.dd')} + ' · 주문번호 ' + ${o.orderNo}"></div>
+                    <b th:text="${o.summaryName}"></b>
+                    <div th:text="${#numbers.formatInteger(o.totalPrice, 0, 'COMMA')} + '원'"></div>
+                </div>
+                <span class="tag" th:classappend="${o.status.name() == 'SHIPPING'} ? 'g' : (${o.status.name() == 'CANCELED'} ? 't' : '')" th:text="${o.status.label}"></span>
+                <form th:if="${o.cancelable}" th:action="@{/mypage/orders/{id}/cancel(id=${o.id})}" method="post"
+                      onsubmit="return confirm('주문을 취소하시겠습니까?')">
+                    <button class="btn line sm" type="submit">주문취소</button>
+                </form>
+                <a class="btn sm" th:classappend="${o.status.name() == 'DELIVERED'} ? 'terra' : 'soft'" th:href="@{/mypage/orders/{id}(id=${o.id})}"
+                   th:text="${o.status.name() == 'DELIVERED'} ? '리뷰쓰기' : '상세보기'"></a>
+            </div>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

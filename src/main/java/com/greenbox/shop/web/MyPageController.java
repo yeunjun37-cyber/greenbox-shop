@@ -1,10 +1,12 @@
 package com.greenbox.shop.web;
 
 import com.greenbox.shop.domain.member.Member;
+import com.greenbox.shop.domain.order.Order;
+import com.greenbox.shop.domain.order.OrderStatus;
 import com.greenbox.shop.dto.MemberUpdateForm;
 import com.greenbox.shop.exception.BusinessException;
 import com.greenbox.shop.security.LoginMember;
-import com.greenbox.shop.service.MemberService;
+import com.greenbox.shop.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.ServletException;
 import jakarta.validation.Valid;
@@ -16,16 +18,62 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 @Controller
 @RequestMapping("/mypage")
 @RequiredArgsConstructor
 public class MyPageController {
 
+    private final OrderService orderService;
     private final MemberService memberService;
+    private final WishService wishService;
 
     @GetMapping
     public String index() {
-        return "redirect:/mypage/info";
+        return "redirect:/mypage/orders";
+    }
+
+    /** F-16 주문 내역 */
+    @GetMapping("/orders")
+    public String orders(@AuthenticationPrincipal LoginMember login, Model model) {
+        List<Order> orders = orderService.myOrders(login.getId());
+        Map<OrderStatus, Long> counts = Arrays.stream(OrderStatus.values())
+                .filter(s -> s != OrderStatus.ORDERED)
+                .collect(Collectors.toMap(Function.identity(),
+                        s -> orders.stream().filter(o -> o.getStatus() == s).count(),
+                        (a, b) -> a, java.util.LinkedHashMap::new));
+        model.addAttribute("orders", orders);
+        model.addAttribute("counts", counts);
+        model.addAttribute("menu", "orders");
+        return "mypage/orders";
+    }
+
+    @GetMapping("/orders/{orderId}")
+    public String orderDetail(@PathVariable Long orderId, @AuthenticationPrincipal LoginMember login, Model model) {
+        Order order = orderService.getOwned(login.getId(), orderId);
+        model.addAttribute("order", order);
+        model.addAttribute("menu", "orders");
+        return "mypage/order-detail";
+    }
+
+    /** F-17 주문 취소 */
+    @PostMapping("/orders/{orderId}/cancel")
+    public String cancel(@PathVariable Long orderId, @AuthenticationPrincipal LoginMember login, RedirectAttributes ra) {
+        orderService.cancel(login.getId(), orderId);
+        ra.addFlashAttribute("message", "주문이 취소되었습니다. 재고가 복구되었습니다.");
+        return "redirect:/mypage/orders";
+    }
+
+    @GetMapping("/wish")
+    public String wish(@AuthenticationPrincipal LoginMember login, Model model) {
+        model.addAttribute("wishes", wishService.list(login.getId()));
+        model.addAttribute("menu", "wish");
+        return "mypage/wish";
     }
 
     /** F-04 회원정보 수정 */

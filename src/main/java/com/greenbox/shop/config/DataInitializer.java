@@ -2,6 +2,7 @@ package com.greenbox.shop.config;
 
 import com.greenbox.shop.domain.member.Member;
 import com.greenbox.shop.domain.member.Role;
+import com.greenbox.shop.domain.order.*;
 import com.greenbox.shop.domain.product.*;
 import com.greenbox.shop.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static com.greenbox.shop.domain.product.Difficulty.*;
 import static com.greenbox.shop.domain.product.Light.*;
@@ -27,6 +31,7 @@ public class DataInitializer implements CommandLineRunner {
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -67,6 +72,16 @@ public class DataInitializer implements CommandLineRunner {
                 "통기성이 좋은 이탈리아산 토분. 과습을 막아 줍니다.", null, null, null, false, "/img/plants/pot.svg"));
         productRepository.save(Product.create(supplies, "분갈이 흙 2L", 4500, 56,
                 "배수가 잘 되는 실내 식물 전용 배합토.", null, null, null, false, "/img/plants/soil.svg"));
+
+        // 리뷰 작성 시연용: 배송완료된 지난 주문 1건
+        String no = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE) + "-0001";
+        Order past = Order.create(no, user, user.getName(), user.getPhone(), user.getZipcode(),
+                user.getAddress() + " " + user.getAddressDetail(), "문 앞에 놓아 주세요");
+        past.addItem(OrderItem.create(stucky, 1));
+        past.addShippingFee(3000);
+        orderRepository.save(past);
+        past.pay(Payment.create(past, PaymentMethod.CARD));
+        past.changeStatus(OrderStatus.DELIVERED);
 
         log.info("기본 데이터 생성 완료 - 관리자 admin@greenbox.com / admin1234, 회원 chorok@greenbox.com / greenbox1234");
     }

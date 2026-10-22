@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('찜 목록')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('')}"></header>
+<main class="container">
+    <div class="layout">
+        <aside th:replace="~{fragments/layout :: mypageSide(${menu})}"></aside>
+        <div>
+            <h2 style="margin-top:0">찜 목록</h2>
+            <p class="muted" th:if="${wishes.empty}">찜한 상품이 없습니다.</p>
+            <div class="grid g3">
+                <th:block th:each="w : ${wishes}" th:insert="~{fragments/layout :: productCard(${w.product})}"></th:block>
+            </div>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
