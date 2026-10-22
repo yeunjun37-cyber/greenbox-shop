@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${notice.title})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('notice')}"></header>
+<main class="container">
+    <h2 style="margin-top:0" th:text="${notice.title}"></h2>
+    <p class="muted" th:text="${#temporals.format(notice.createdAt, 'yyyy.MM.dd')} + ' · 조회 ' + ${notice.viewCount}"></p>
+    <div class="box" style="white-space:pre-line;line-height:1.8" th:text="${notice.content}"></div>
+    <a class="btn line" th:href="@{/notices}">목록</a>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

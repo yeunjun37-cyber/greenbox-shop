@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('내 리뷰')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('')}"></header>
+<th:block th:replace="~{fragments/layout :: flash}"></th:block>
+<main class="container">
+    <div class="layout">
+        <aside th:replace="~{fragments/layout :: mypageSide(${menu})}"></aside>
+        <div>
+            <h2 style="margin-top:0">내 리뷰</h2>
+            <p class="muted" th:if="${reviews.empty}">작성한 리뷰가 없습니다.</p>
+            <div class="box" th:each="r : ${reviews}">
+                <a th:href="@{/products/{id}(id=${r.product.id},tab='review')}"><b th:text="${r.product.name}"></b></a>
+                <span class="stars" th:text="${#strings.repeat('★', r.rating)}"></span>
+                <span class="muted" style="font-size:13px" th:text="${#temporals.format(r.createdAt, 'yyyy.MM.dd')}"></span>
+                <p th:text="${r.content}"></p>
+            </div>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

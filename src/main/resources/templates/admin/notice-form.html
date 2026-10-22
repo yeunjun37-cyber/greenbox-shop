@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('공지 작성')}"></head>
+<body>
+<div class="admin">
+    <aside th:replace="~{fragments/layout :: adminSide(${menu})}"></aside>
+    <main>
+        <h2 style="margin-top:0" th:text="${notice} ? '공지 수정' : '공지 등록'"></h2>
+        <form th:action="@{/admin/notices}" method="post" class="box" style="max-width:760px">
+            <input type="hidden" name="id" th:value="${notice?.id}">
+            <div class="form-row"><span>제목</span><input name="title" th:value="${notice?.title}" required></div>
+            <div class="form-row" style="align-items:start"><span>내용</span><textarea name="content" th:text="${notice?.content}" required style="min-height:220px"></textarea></div>
+            <button class="btn" type="submit">저장</button> <a class="btn line" th:href="@{/admin/notices}">취소</a>
+        </form>
+    </main>
+</div>
+</body>
+</html>

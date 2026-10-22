@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('주문 상세')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('')}"></header>
+<th:block th:replace="~{fragments/layout :: flash}"></th:block>
+<main class="container">
+    <div class="layout">
+        <aside th:replace="~{fragments/layout :: mypageSide(${menu})}"></aside>
+        <div>
+            <h2 style="margin-top:0">주문 상세 <span class="tag" th:text="${order.status.label}"></span></h2>
+            <p class="muted" th:text="'주문번호 ' + ${order.orderNo} + ' · ' + ${#temporals.format(order.orderedAt, 'yyyy.MM.dd HH:mm')}"></p>
+            <table class="tbl">
+                <tr><th>상품</th><th style="width:100px">단가</th><th style="width:70px">수량</th><th style="width:110px">금액</th><th style="width:110px">리뷰</th></tr>
+                <tr th:each="i : ${order.items}">
+                    <td><span style="display:flex;gap:10px;align-items:center"><span class="mini-thumb"><img th:src="${i.product.thumbnail}"></span><span th:text="${i.product.name}"></span></span></td>
+                    <td th:text="${#numbers.formatInteger(i.orderPrice, 0, 'COMMA')} + '원'"></td>
+                    <td th:text="${i.quantity}"></td>
+                    <td th:text="${#numbers.formatInteger(i.totalPrice, 0, 'COMMA')} + '원'"></td>
+                    <td>
+                        <a th:if="${order.status.name() == 'DELIVERED' and !reviewed[i.id]}" class="btn terra sm" th:href="@{/reviews/new(orderItemId=${i.id})}" th:id="'review-' + ${i.id}">리뷰쓰기</a>
+                        <span th:if="${reviewed[i.id]}" class="muted">작성완료</span>
+                    </td>
+                </tr>
+            </table>
+            <div class="box" style="margin-top:18px">
+                <h3>배송 정보</h3>
+                <div th:text="${order.receiverName} + ' · ' + ${order.receiverPhone}"></div>
+                <div th:text="'(' + ${order.zipcode} + ') ' + ${order.address}"></div>
+                <div class="muted" th:if="${order.memo}" th:text="'요청사항: ' + ${order.memo}"></div>
+            </div>
+            <div class="box"><h3>결제 정보</h3>
+                <span th:text="${order.payment.method.label}"></span> · <b th:text="${#numbers.formatInteger(order.totalPrice, 0, 'COMMA')} + '원'"></b>
+                <span class="muted" th:text="'(' + ${order.payment.status} + ')'"></span></div>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('회원정보 수정')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('')}"></header>
+<th:block th:replace="~{fragments/layout :: flash}"></th:block>
+<main class="container">
+    <div class="layout">
+        <aside th:replace="~{fragments/layout :: mypageSide(${menu})}"></aside>
+        <div>
+            <h2 style="margin-top:0">회원정보 수정</h2>
+            <form th:action="@{/mypage/info}" th:object="${form}" method="post" class="box">
+                <div class="form-row"><span>이메일</span><input th:value="${email}" disabled></div>
+                <div class="form-row"><span>이름</span><div><input th:field="*{name}"><div class="err" th:errors="*{name}"></div></div></div>
+                <div class="form-row"><span>연락처</span><div><input th:field="*{phone}"><div class="err" th:errors="*{phone}"></div></div></div>
+                <div class="form-row"><span>우편번호</span><input th:field="*{zipcode}" style="max-width:160px"></div>
+                <div class="form-row"><span>주소</span><input th:field="*{address}"></div>
+                <div class="form-row"><span>상세주소</span><input th:field="*{addressDetail}"></div>
+                <div class="form-row"><span>새 비밀번호</span><input th:field="*{newPassword}" type="password" placeholder="변경할 때만 입력 (8자 이상)"></div>
+                <button class="btn" type="submit">저장</button>
+            </form>
+            <form th:action="@{/mypage/withdraw}" method="post" class="box" onsubmit="return confirm('정말 탈퇴하시겠습니까?')">
+                <h3>회원 탈퇴</h3>
+                <div class="inline"><input name="password" type="password" placeholder="비밀번호 확인" required style="max-width:260px">
+                    <button class="btn line sm" type="submit">탈퇴하기</button></div>
+            </form>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

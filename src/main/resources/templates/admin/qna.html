@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Q&A 관리')}"></head>
+<body>
+<div class="admin">
+    <aside th:replace="~{fragments/layout :: adminSide(${menu})}"></aside>
+    <main>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+        <h2 style="margin-top:0">Q&amp;A 관리</h2>
+        <div class="box" th:each="q : ${page.content}">
+            <span class="tag" th:classappend="${q.answered} ? 'g'" th:text="${q.answered} ? '답변완료' : '답변대기'"></span>
+            <b th:text="${q.title}"></b> <span class="muted" style="font-size:13px" th:text="'· ' + ${q.product.name} + ' · ' + ${q.member.name} + (${q.secret} ? ' · 🔒비밀글' : '')"></span>
+            <p th:text="${q.content}"></p>
+            <div th:if="${q.answered}" style="color:var(--g)">↳ <span th:text="${q.answer}"></span></div>
+            <form th:unless="${q.answered}" th:action="@{/admin/qna/{id}/answer(id=${q.id})}" method="post" class="inline">
+                <input name="answer" placeholder="답변을 입력하세요" required><button class="btn sm" type="submit">답변 등록</button></form>
+        </div>
+    </main>
+</div>
+</body>
+</html>

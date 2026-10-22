@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('주문 완료')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('')}"></header>
+<main class="container" style="text-align:center;padding-top:60px">
+    <div style="font-size:60px">✅</div>
+    <h1>주문이 완료되었습니다</h1>
+    <p>주문번호 <b th:text="${order.orderNo}"></b> · 결제금액 <b style="color:var(--terra)" th:text="${#numbers.formatInteger(order.totalPrice, 0, 'COMMA')} + '원'"></b></p>
+    <p class="muted"><span th:text="${order.payment.method.label}"></span> 결제가 완료되었고, 주문 수량만큼 재고가 차감되었습니다.</p>
+    <a id="go-orders" class="btn" th:href="@{/mypage/orders}">주문내역 보기</a>
+    <a class="btn line" th:href="@{/products}">쇼핑 계속하기</a>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

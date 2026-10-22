@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('반려식물 쇼핑몰')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('')}"></header>
+<th:block th:replace="~{fragments/layout :: flash}"></th:block>
+<main class="container">
+    <section class="hero">
+        <div>
+            <h1>처음 키우는 식물, 실패 없이 시작하세요</h1>
+            <p>우리 집 빛과 생활에 맞는 식물을 골라 드리고, 물주기까지 챙겨 드려요.</p>
+            <a class="btn terra" th:href="@{/products}">식물 찾기 →</a>
+        </div>
+        <img src="/img/plants/monstera.svg" alt="몬스테라">
+    </section>
+    <div class="chips">
+        <a class="chip" id="chip-easy" th:href="@{/products(difficulty='EASY')}">초보자 추천</a>
+        <a class="chip" id="chip-shade" th:href="@{/products(light='LOW')}">그늘에서도 OK</a>
+        <a class="chip" id="chip-pet" th:href="@{/products(petSafe=true)}">반려동물 안전</a>
+        <a class="chip" th:href="@{/products(sort='popular')}">인기 식물</a>
+    </div>
+    <h2>신상품</h2>
+    <div class="grid">
+        <th:block th:each="p : ${newest}" th:insert="~{fragments/layout :: productCard(${p})}"></th:block>
+    </div>
+    <h2 id="best">베스트</h2>
+    <div class="grid">
+        <th:block th:each="p : ${best}" th:insert="~{fragments/layout :: productCard(${p})}"></th:block>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

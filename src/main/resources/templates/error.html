@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>오류 | 그린박스</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<main class="container" style="text-align:center;padding-top:90px">
+    <div style="font-size:60px">🥀</div>
+    <h1 th:text="${status == 404} ? '페이지를 찾을 수 없습니다' : '요청을 처리하지 못했습니다'">오류</h1>
+    <p class="muted" th:text="${message}"></p>
+    <a class="btn" href="/">메인으로</a>
+</main>
+</body>
+</html>
