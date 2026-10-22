@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('상품 목록')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('products')}"></header>
+<th:block th:replace="~{fragments/layout :: flash}"></th:block>
+<main class="container">
+    <form id="filterForm" th:action="@{/products}" method="get" th:object="${search}">
+        <input type="hidden" name="categoryId" th:value="*{categoryId}">
+        <input type="hidden" name="sort" th:value="*{sort}">
+        <input type="hidden" name="page" th:value="*{page}">
+        <input type="hidden" name="keyword" th:value="*{keyword}">
+        <div class="layout">
+            <div class="panel">
+                <b>필터</b>
+                <h4>카테고리</h4>
+                <a class="cat" th:classappend="*{categoryId == null} ? 'on'" onclick="setAndSubmit('categoryId','')">전체</a>
+                <a class="cat" th:each="c : ${categories}" th:text="${c.name}" th:classappend="${search.categoryId == c.id} ? 'on'"
+                   th:attr="onclick=|setAndSubmit('categoryId','${c.id}')|"></a>
+                <h4>난이도</h4>
+                <label th:each="d : ${difficulties}">
+                    <input type="checkbox" name="difficulty" th:value="${d}" th:id="'f-' + ${#strings.toLowerCase(d)}"
+                           th:checked="${search.difficulty.contains(d)}" onchange="this.form.page.value=0;this.form.submit()">
+                    <span th:text="${d.label}"></span></label>
+                <h4>필요 광량</h4>
+                <label th:each="l : ${lights}">
+                    <input type="checkbox" name="light" th:value="${l}" th:id="'f-' + ${#strings.toLowerCase(l)}"
+                           th:checked="${search.light.contains(l)}" onchange="this.form.page.value=0;this.form.submit()">
+                    <span th:text="${l.label}"></span></label>
+                <h4>반려동물</h4>
+                <label><input type="checkbox" id="f-pet" name="petSafe" value="true" th:checked="*{petSafe}"
+                              onchange="this.form.page.value=0;this.form.submit()"> 안전한 식물만 보기</label>
+            </div>
+            <div>
+                <div class="toolbar">
+                    <b><span th:text="${#strings.isEmpty(search.keyword)} ? '전체 상품' : '‘' + ${search.keyword} + '’ 검색 결과'"></span> · <span th:text="${page.totalElements}"></span>개</b>
+                    <div class="sorts">
+                        <a id="s-new" th:classappend="*{sort == 'new'} ? 'on'" onclick="setAndSubmit('sort','new')">신상품</a>
+                        <a id="s-low" th:classappend="*{sort == 'low'} ? 'on'" onclick="setAndSubmit('sort','low')">낮은가격</a>
+                        <a id="s-high" th:classappend="*{sort == 'high'} ? 'on'" onclick="setAndSubmit('sort','high')">높은가격</a>
+                        <a id="s-popular" th:classappend="*{sort == 'popular'} ? 'on'" onclick="setAndSubmit('sort','popular')">인기순</a>
+                    </div>
+                </div>
+                <div class="grid g3">
+                    <th:block th:each="p : ${page.content}" th:insert="~{fragments/layout :: productCard(${p})}"></th:block>
+                </div>
+                <p th:if="${page.empty}" class="muted" style="text-align:center;padding:60px">조건에 맞는 상품이 없습니다.</p>
+                <div class="pager" th:if="${page.totalPages > 1}">
+                    <a th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}" th:text="${i + 1}"
+                       th:classappend="${i == page.number} ? 'on'" th:attr="onclick=|setAndSubmit('page','${i}')|" style="cursor:pointer"></a>
+                </div>
+            </div>
+        </div>
+    </form>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
