@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('내 식물')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('plants')}"></header>
+<th:block th:replace="~{fragments/layout :: flash}"></th:block>
+<main class="container">
+    <div class="layout">
+        <aside th:replace="~{fragments/layout :: mypageSide(${menu})}"></aside>
+        <div>
+            <div class="toolbar"><h2 style="margin:0" th:text="'내 식물 (' + ${plants.size()} + ')'">내 식물</h2>
+                <button id="add-plant" class="btn" type="button" onclick="document.getElementById('plantForm').toggleAttribute('hidden')">+ 식물 등록</button></div>
+
+            <form id="plantForm" class="box" th:action="@{/myplants}" method="post" hidden>
+                <h3>내 식물 등록</h3>
+                <p class="muted" th:if="${purchased.empty}">구매한 식물이 있어야 등록할 수 있어요.</p>
+                <th:block th:unless="${purchased.empty}">
+                    <div class="form-row"><span>구매한 식물</span>
+                        <select name="productId" id="pl-prod">
+                            <option th:each="p : ${purchased}" th:value="${p.id}" th:text="${p.name} + ' (권장 물주기 ' + ${p.waterCycle} + '일)'"></option>
+                        </select></div>
+                    <div class="form-row"><span>별명</span><input name="nickname" id="pl-nick" placeholder="예) 초록이" required maxlength="30"></div>
+                    <div class="form-row"><span>물주기 주기(일)</span><input name="waterCycle" id="pl-cycle" type="number" min="1" placeholder="비워 두면 권장 주기" style="max-width:200px"></div>
+                    <div class="form-row"><span>마지막 물 준 날</span><input name="lastWateredAt" id="pl-last" type="date" th:value="${today}" th:max="${today}" style="max-width:200px"></div>
+                    <button id="pl-save" class="btn" type="submit">등록하기</button>
+                </th:block>
+            </form>
+
+            <p class="muted" th:if="${plants.empty}">등록된 식물이 없습니다. 구매한 식물을 등록하고 물주기 알림을 받아 보세요.</p>
+            <div class="plants">
+                <div class="pc" th:each="pl, st : ${plants}">
+                    <div class="ph"><img th:src="${pl.product.thumbnail}"></div>
+                    <h3 style="margin:10px 0 2px" th:text="${pl.nickname}"></h3>
+                    <div class="muted" style="font-size:13px" th:text="${pl.product.name} + ' · ' + ${pl.waterCycle} + '일 주기'"></div>
+                    <div style="margin-top:10px"><span class="tag" th:classappend="${pl.due} ? 't'" th:id="'dd-' + ${st.index}"
+                        th:text="${pl.due} ? '물주기 오늘!' : '물주기 D-' + ${pl.daysLeft}"></span></div>
+                    <div class="bar"><i th:classappend="${pl.due} ? 'due'" th:style="'width:' + ${pl.progress} + '%'"></i></div>
+                    <div class="muted" style="font-size:13px">마지막 물 준 날 <span th:text="${#temporals.format(pl.lastWateredAt, 'yyyy.MM.dd')}"></span><br>
+                        다음 물주기 <span th:text="${#temporals.format(pl.nextWaterAt, 'yyyy.MM.dd')}"></span></div>
+                    <form th:action="@{/myplants/{id}/water(id=${pl.id})}" method="post">
+                        <button th:id="'water-' + ${st.index}" class="btn sm block" th:classappend="${pl.due} ? '' : 'line'" style="margin-top:12px" type="submit">💧 물 줬어요</button>
+                    </form>
+                </div>
+            </div>
+
+            <h3 style="margin-top:28px">이번 주 물주기 일정</h3>
+            <div class="week">
+                <div th:each="d, st : ${week}" th:classappend="${st.first} ? 'today'">
+                    <b th:text="${d.dow()}"></b> <span class="muted" th:text="${#temporals.format(d.date(), 'M/d')}"></span>
+                    <span class="dot" th:each="n : ${d.names()}" th:text="'💧 ' + ${n}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
