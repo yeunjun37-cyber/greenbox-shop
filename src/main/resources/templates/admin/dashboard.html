@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('관리자 대시보드')}"></head>
+<body>
+<div class="admin">
+    <aside th:replace="~{fragments/layout :: adminSide(${menu})}"></aside>
+    <main>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+        <h2 style="margin-top:0">대시보드</h2>
+        <div class="kpi">
+            <div>오늘 주문<b th:text="${todayOrders} + '건'"></b></div>
+            <div>오늘 매출<b th:text="${#numbers.formatInteger(todaySales, 0, 'COMMA')} + '원'"></b></div>
+            <div>신규 회원<b th:text="${newMembers} + '명'"></b></div>
+            <div>미답변 문의<b th:text="${unanswered} + '건'" style="color:var(--terra)"></b></div>
+        </div>
+        <div class="two">
+            <div class="box"><h3>최근 주문</h3>
+                <table class="tbl">
+                    <tr><th>주문번호</th><th>주문자</th><th>금액</th><th>상태</th></tr>
+                    <tr th:each="o : ${recent}"><td th:text="${o.orderNo}"></td><td th:text="${o.member.name}"></td>
+                        <td th:text="${#numbers.formatInteger(o.totalPrice, 0, 'COMMA')} + '원'"></td><td><span class="tag" th:text="${o.status.label}"></span></td></tr>
+                </table></div>
+            <div class="box"><h3>재고 부족 (10개 미만)</h3>
+                <div th:each="p : ${lowStock}" style="display:flex;justify-content:space-between;margin:8px 0">
+                    <a th:href="@{/admin/products/{id}/edit(id=${p.id})}" th:text="${p.name}"></a><b style="color:var(--terra)" th:text="${p.stock} + '개'"></b></div>
+                <p class="muted" th:if="${lowStock.empty}">재고 부족 상품이 없습니다.</p></div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

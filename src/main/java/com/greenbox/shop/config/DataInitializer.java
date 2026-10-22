@@ -1,5 +1,7 @@
 package com.greenbox.shop.config;
 
+import com.greenbox.shop.domain.board.Notice;
+import com.greenbox.shop.domain.board.Qna;
 import com.greenbox.shop.domain.member.Member;
 import com.greenbox.shop.domain.member.Role;
 import com.greenbox.shop.domain.order.*;
@@ -32,6 +34,8 @@ public class DataInitializer implements CommandLineRunner {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
+    private final NoticeRepository noticeRepository;
+    private final QnaRepository qnaRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -82,6 +86,15 @@ public class DataInitializer implements CommandLineRunner {
         orderRepository.save(past);
         past.pay(Payment.create(past, PaymentMethod.CARD));
         past.changeStatus(OrderStatus.DELIVERED);
+
+        noticeRepository.save(Notice.create(admin, "그린박스 오픈 안내",
+                "반려식물 쇼핑몰 그린박스가 문을 열었습니다. 3만원 이상 구매 시 무료배송 혜택을 드립니다."));
+        noticeRepository.save(Notice.create(admin, "겨울철 식물 배송 안내",
+                "기온이 영하로 떨어지는 날에는 냉해 방지를 위해 보온 포장 후 발송됩니다."));
+        qnaRepository.save(Qna.create(monstera, user, "햇빛이 적은 거실에서도 괜찮을까요?",
+                "북향 거실인데 몬스테라가 잘 자랄 수 있을지 궁금합니다.", false));
+        Qna answered = qnaRepository.save(Qna.create(pilea, user, "배송은 얼마나 걸리나요?", "주말에 주문하면 언제 도착하나요?", false));
+        answered.answer("평일 오후 2시 이전 결제 건은 당일 출고되며, 주말 주문은 월요일에 출고됩니다.");
 
         log.info("기본 데이터 생성 완료 - 관리자 admin@greenbox.com / admin1234, 회원 chorok@greenbox.com / greenbox1234");
     }

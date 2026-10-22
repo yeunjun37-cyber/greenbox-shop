@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('공지사항')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('notice')}"></header>
+<main class="container">
+    <h2 style="margin-top:0">공지사항</h2>
+    <table class="tbl">
+        <tr><th style="width:70px">번호</th><th>제목</th><th style="width:120px">작성일</th><th style="width:80px">조회</th></tr>
+        <tr th:each="n : ${page.content}">
+            <td th:text="${n.id}"></td>
+            <td><a th:href="@{/notices/{id}(id=${n.id})}" th:text="${n.title}"></a></td>
+            <td th:text="${#temporals.format(n.createdAt, 'yyyy.MM.dd')}"></td>
+            <td th:text="${n.viewCount}"></td>
+        </tr>
+    </table>
+    <div class="pager" th:if="${page.totalPages > 1}">
+        <a th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}" th:href="@{/notices(page=${i})}" th:text="${i + 1}" th:classappend="${i == page.number} ? 'on'"></a>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

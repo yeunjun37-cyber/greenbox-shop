@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('리뷰 작성')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('')}"></header>
+<th:block th:replace="~{fragments/layout :: flash}"></th:block>
+<main class="container">
+    <div class="layout">
+        <aside th:replace="~{fragments/layout :: mypageSide(${menu})}"></aside>
+        <div>
+            <h2 style="margin-top:0">리뷰 작성</h2>
+            <div class="box" style="display:flex;gap:14px;align-items:center">
+                <span class="mini-thumb"><img th:src="${item.product.thumbnail}"></span><b th:text="${item.product.name}"></b></div>
+            <form th:action="@{/reviews}" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="orderItemId" th:value="${item.id}">
+                <div class="form-row"><span>별점</span>
+                    <select name="rating" id="rating" style="max-width:200px">
+                        <option value="5">★★★★★ 아주 좋아요</option><option value="4">★★★★☆ 좋아요</option>
+                        <option value="3">★★★☆☆ 보통이에요</option><option value="2">★★☆☆☆ 별로예요</option><option value="1">★☆☆☆☆ 나빠요</option>
+                    </select></div>
+                <div class="form-row" style="align-items:start"><span>내용</span><textarea name="content" id="content" required placeholder="식물 상태, 포장, 배송은 어땠나요?"></textarea></div>
+                <div class="form-row"><span>사진</span><input type="file" name="image" accept="image/*"></div>
+                <button class="btn" type="submit" id="review-save">리뷰 등록</button>
+            </form>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

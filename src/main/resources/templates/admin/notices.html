@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('공지사항 관리')}"></head>
+<body>
+<div class="admin">
+    <aside th:replace="~{fragments/layout :: adminSide(${menu})}"></aside>
+    <main>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+        <div class="toolbar"><h2 style="margin:0">공지사항 관리</h2><a class="btn terra" th:href="@{/admin/notices/new}">+ 공지 등록</a></div>
+        <table class="tbl">
+            <tr><th>번호</th><th>제목</th><th>작성일</th><th>조회</th><th>관리</th></tr>
+            <tr th:each="n : ${page.content}">
+                <td th:text="${n.id}"></td><td th:text="${n.title}"></td>
+                <td th:text="${#temporals.format(n.createdAt, 'yyyy.MM.dd')}"></td><td th:text="${n.viewCount}"></td>
+                <td class="inline"><a class="btn soft sm" th:href="@{/admin/notices/{id}/edit(id=${n.id})}">수정</a>
+                    <form th:action="@{/admin/notices/{id}/delete(id=${n.id})}" method="post" onsubmit="return confirm('삭제할까요?')"><button class="btn line sm" type="submit">삭제</button></form></td>
+            </tr>
+        </table>
+    </main>
+</div>
+</body>
+</html>

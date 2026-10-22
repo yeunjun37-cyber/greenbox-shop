@@ -32,6 +32,7 @@ public class MyPageController {
     private final OrderService orderService;
     private final MemberService memberService;
     private final WishService wishService;
+    private final ReviewService reviewService;
 
     @GetMapping
     public String index() {
@@ -57,6 +58,8 @@ public class MyPageController {
     public String orderDetail(@PathVariable Long orderId, @AuthenticationPrincipal LoginMember login, Model model) {
         Order order = orderService.getOwned(login.getId(), orderId);
         model.addAttribute("order", order);
+        model.addAttribute("reviewed", order.getItems().stream()
+                .collect(Collectors.toMap(i -> i.getId(), i -> reviewService.written(i.getId()))));
         model.addAttribute("menu", "orders");
         return "mypage/order-detail";
     }
@@ -74,6 +77,13 @@ public class MyPageController {
         model.addAttribute("wishes", wishService.list(login.getId()));
         model.addAttribute("menu", "wish");
         return "mypage/wish";
+    }
+
+    @GetMapping("/reviews")
+    public String reviews(@AuthenticationPrincipal LoginMember login, Model model) {
+        model.addAttribute("reviews", reviewService.byMember(login.getId()));
+        model.addAttribute("menu", "reviews");
+        return "mypage/reviews";
     }
 
     /** F-04 회원정보 수정 */

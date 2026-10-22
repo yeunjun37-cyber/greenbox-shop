@@ -5,15 +5,12 @@ import com.greenbox.shop.domain.product.Light;
 import com.greenbox.shop.domain.product.Product;
 import com.greenbox.shop.dto.ProductSearch;
 import com.greenbox.shop.security.LoginMember;
-import com.greenbox.shop.service.ProductService;
-import com.greenbox.shop.service.WishService;
+import com.greenbox.shop.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/products")
@@ -22,6 +19,8 @@ public class ProductController {
 
     private final ProductService productService;
     private final WishService wishService;
+    private final ReviewService reviewService;
+    private final QnaService qnaService;
 
     /** F-07 목록 · F-08 맞춤 필터 · F-09 검색 */
     @GetMapping
@@ -42,9 +41,9 @@ public class ProductController {
         model.addAttribute("product", product);
         model.addAttribute("tab", tab);
         model.addAttribute("wished", wishService.isWished(memberId, id));
-        model.addAttribute("reviews", List.of());   // 리뷰 기능 개발 전
-        model.addAttribute("rating", 0);
-        model.addAttribute("qnas", List.of());      // Q&A 기능 개발 전
+        model.addAttribute("reviews", reviewService.byProduct(id));
+        model.addAttribute("rating", reviewService.average(id));
+        model.addAttribute("qnas", qnaService.byProduct(id));
         model.addAttribute("loginId", memberId);
         model.addAttribute("isAdmin", login != null && login.isAdmin());
         return "product/detail";
