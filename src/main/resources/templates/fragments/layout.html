@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <title th:text="${title} + ' | 그린박스'">그린박스</title>
+    <link rel="icon" href="/img/plants/round.svg">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/app.js}" defer></script>
+</head>
+
+<body>
+<header class="site" th:fragment="header(active)">
+    <div class="nav">
+        <a class="logo" th:href="@{/}">🌿 GreenBox</a>
+        <nav class="menu">
+            <a th:href="@{/products}" th:classappend="${active == 'products'} ? 'on'">전체상품</a>
+            <a th:href="@{/products(difficulty='EASY')}" th:classappend="${active == 'find'} ? 'on'">초보자 추천</a>
+            <a th:href="@{/myplants}" th:classappend="${active == 'plants'} ? 'on'">내 식물</a>
+            <a th:href="@{/notices}" th:classappend="${active == 'notice'} ? 'on'">공지사항</a>
+        </nav>
+        <div class="right">
+            <form class="search-mini" th:action="@{/products}" method="get">
+                <input name="keyword" placeholder="식물 이름 검색">
+                <button type="submit">🔍</button>
+            </form>
+            <a th:href="@{/cart}" id="h-cart">장바구니<span class="badge-c" th:text="${cartCount}">0</span></a>
+            <th:block sec:authorize="isAnonymous()">
+                <a th:href="@{/member/login}" id="h-login">로그인</a>
+                <a th:href="@{/member/join}">회원가입</a>
+            </th:block>
+            <th:block sec:authorize="isAuthenticated()">
+                <a th:href="@{/mypage/orders}" id="h-my"><span sec:authentication="principal.name">회원</span>님</a>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}" id="h-admin">관리자</a>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="link" id="h-logout">로그아웃</button>
+                </form>
+            </th:block>
+        </div>
+    </div>
+</header>
+
+<th:block th:fragment="flash">
+    <div class="flash" th:if="${message}" th:text="${message}"></div>
+    <div class="flash error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+</th:block>
+
+<footer class="site" th:fragment="footer">
+    <b>그린박스 GreenBox</b> · 반려식물 큐레이션 &amp; 관리 쇼핑몰<br>
+    Spring Boot · Spring Data JPA · Thymeleaf · MySQL — 1팀 인연준
+</footer>
+
+<aside class="side" th:fragment="mypageSide(menu)">
+    <b>마이페이지</b>
+    <a th:href="@{/mypage/orders}" id="ms-orders" th:classappend="${menu == 'orders'} ? 'on'">주문내역</a>
+    <a th:href="@{/mypage/wish}" id="ms-wish" th:classappend="${menu == 'wish'} ? 'on'">찜 목록</a>
+    <a th:href="@{/mypage/reviews}" id="ms-reviews" th:classappend="${menu == 'reviews'} ? 'on'">내 리뷰</a>
+    <a th:href="@{/myplants}" id="ms-plants" th:classappend="${menu == 'plants'} ? 'on'">내 식물</a>
+    <a th:href="@{/mypage/info}" id="ms-info" th:classappend="${menu == 'info'} ? 'on'">회원정보 수정</a>
+</aside>
+
+<aside class="aside" th:fragment="adminSide(menu)">
+    <div style="font-weight:800;font-size:18px;margin-bottom:20px">🌿 GreenBox ADMIN</div>
+    <a th:href="@{/admin}" id="am-dash" th:classappend="${menu == 'dash'} ? 'on'">대시보드</a>
+    <a th:href="@{/admin/products}" id="am-products" th:classappend="${menu == 'products'} ? 'on'">상품 관리</a>
+    <a th:href="@{/admin/orders}" id="am-orders" th:classappend="${menu == 'orders'} ? 'on'">주문 관리</a>
+    <a th:href="@{/admin/members}" id="am-members" th:classappend="${menu == 'members'} ? 'on'">회원 관리</a>
+    <a th:href="@{/admin/qna}" id="am-qna" th:classappend="${menu == 'qna'} ? 'on'">Q&amp;A 관리</a>
+    <a th:href="@{/admin/notices}" id="am-notices" th:classappend="${menu == 'notices'} ? 'on'">공지사항</a>
+    <a th:href="@{/}" style="margin-top:30px;color:var(--moss)">← 쇼핑몰로</a>
+</aside>
+
+<th:block th:fragment="productCard(p)">
+    <a class="card" th:href="@{/products/{id}(id=${p.id})}" th:classappend="${!p.onSale} ? 'soldout'" th:attr="data-id=${p.id}">
+        <div class="thumb"><img th:src="${p.thumbnail}" th:alt="${p.name}"></div>
+        <div class="nm" th:text="${p.name}">상품명</div>
+        <div class="pr" th:text="${#numbers.formatInteger(p.price, 0, 'COMMA')} + '원'">0원</div>
+        <div>
+            <span class="tag" th:if="${p.difficulty}" th:text="${p.difficulty.label}"></span>
+            <span class="tag" th:if="${p.light}" th:text="${p.light.label}"></span>
+            <span class="tag g" th:if="${p.plant and p.isPetSafe()}">반려동물 안전</span>
+            <span class="tag t" th:if="${!p.onSale}" th:text="${p.status.label}"></span>
+        </div>
+    </a>
+</th:block>
+</body>
+</html>
