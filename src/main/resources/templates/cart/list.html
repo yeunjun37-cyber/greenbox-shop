@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('장바구니')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('')}"></header>
+<th:block th:replace="~{fragments/layout :: flash}"></th:block>
+<main class="container">
+    <h2 style="margin-top:0">장바구니</h2>
+    <form id="orderForm" th:action="@{/order/form}" method="get" onsubmit="orderSelected(event)"></form>
+    <form id="deleteForm" th:action="@{/cart}" th:method="delete"></form>
+    <div class="two">
+        <div>
+            <table class="tbl">
+                <tr><th style="width:40px"><input type="checkbox" id="checkAll" checked onchange="checkAll(this)"></th><th>상품정보</th><th style="width:150px">수량</th><th style="width:110px">금액</th></tr>
+                <tr th:each="c, st : ${cart.items}">
+                    <td><input type="checkbox" class="cart-check" form="orderForm" name="cartItemIds" th:value="${c.id}" checked
+                               th:attr="data-price=${c.totalPrice}" onchange="recalcCart()"></td>
+                    <td><a th:href="@{/products/{id}(id=${c.product.id})}" style="display:flex;align-items:center;gap:12px">
+                        <span class="mini-thumb"><img th:src="${c.product.thumbnail}"></span><span th:text="${c.product.name}"></span></a></td>
+                    <td>
+                        <form th:action="@{/cart/{id}(id=${c.id})}" th:method="patch" class="qty">
+                            <button type="submit" name="quantity" th:value="${c.quantity - 1}">−</button>
+                            <input th:value="${c.quantity}" readonly>
+                            <button type="submit" name="quantity" th:value="${c.quantity + 1}" th:id="'cq-' + ${st.index}">+</button>
+                        </form>
+                    </td>
+                    <td><b th:text="${#numbers.formatInteger(c.totalPrice, 0, 'COMMA')} + '원'"></b></td>
+                </tr>
+                <tr th:if="${cart.items.empty}"><td colspan="4" style="text-align:center;padding:50px" class="muted">장바구니가 비어 있습니다.</td></tr>
+            </table>
+            <button type="button" class="btn line sm" style="margin-top:12px" onclick="deleteSelected()" th:unless="${cart.items.empty}">선택 삭제</button>
+        </div>
+        <div class="sum">
+            <b>결제 예정 금액</b>
+            <div class="row"><span>상품금액</span><span id="sumProduct" th:text="${#numbers.formatInteger(cart.productTotal, 0, 'COMMA')} + '원'"></span></div>
+            <div class="row"><span>배송비</span><span id="sumFee" th:text="${#numbers.formatInteger(cart.shippingFee, 0, 'COMMA')} + '원'"></span></div>
+            <hr style="border:none;border-top:1px solid var(--line)">
+            <div class="row"><b>합계</b><span class="tot" id="sumTotal" th:text="${#numbers.formatInteger(cart.total, 0, 'COMMA')} + '원'"></span></div>
+            <div class="muted" style="font-size:12px">3만원 이상 구매 시 무료배송</div>
+            <button type="submit" form="orderForm" id="to-order" class="btn block" style="margin-top:12px" th:disabled="${cart.items.empty}">주문하기</button>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
