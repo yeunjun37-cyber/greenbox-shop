@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('주문 관리')}"></head>
+<body>
+<div class="admin">
+    <aside th:replace="~{fragments/layout :: adminSide(${menu})}"></aside>
+    <main>
+        <th:block th:replace="~{fragments/layout :: flash}"></th:block>
+        <h2 style="margin-top:0">주문 관리</h2>
+        <div class="chips" style="margin:0 0 14px">
+            <a class="chip" th:href="@{/admin/orders}" th:style="${status == null} ? 'background:var(--g);color:#fff'">전체</a>
+            <a class="chip" th:each="s : ${statuses}" th:if="${s.name() != 'ORDERED'}" th:href="@{/admin/orders(status=${s})}" th:text="${s.label}"
+               th:style="${status == s} ? 'background:var(--g);color:#fff'"></a>
+        </div>
+        <table class="tbl">
+            <tr><th>주문번호</th><th>주문자</th><th>상품</th><th>금액</th><th>주문일시</th><th>상태</th><th>상태 변경</th></tr>
+            <tr th:each="o, st : ${page.content}">
+                <td th:text="${o.orderNo}"></td>
+                <td th:text="${o.member.name}"></td>
+                <td th:text="${o.summaryName}"></td>
+                <td th:text="${#numbers.formatInteger(o.totalPrice, 0, 'COMMA')} + '원'"></td>
+                <td th:text="${#temporals.format(o.orderedAt, 'MM.dd HH:mm')}"></td>
+                <td><span class="tag" th:classappend="${o.status.name() == 'SHIPPING'} ? 'g' : (${o.status.name() == 'CANCELED'} ? 't' : '')" th:text="${o.status.label}"></span></td>
+                <td>
+                    <form th:if="${o.status.name() != 'CANCELED'}" th:action="@{/admin/orders/{id}/status(id=${o.id})}" method="post" class="inline">
+                        <select name="status" th:id="'st-' + ${st.index}" style="width:120px">
+                            <option th:each="s : ${statuses}" th:if="${s.name() != 'ORDERED'}" th:value="${s}" th:text="${s.label}" th:selected="${s == o.status}"></option>
+                        </select>
+                        <button class="btn sm" type="submit" th:id="'st-save-' + ${st.index}">변경</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+        <div class="pager" th:if="${page.totalPages > 1}">
+            <a th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}" th:href="@{/admin/orders(page=${i},status=${status})}" th:text="${i + 1}" th:classappend="${i == page.number} ? 'on'"></a>
+        </div>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('회원 관리')}"></head>
+<body>
+<div class="admin">
+    <aside th:replace="~{fragments/layout :: adminSide(${menu})}"></aside>
+    <main>
+        <h2 style="margin-top:0">회원 관리</h2>
+        <form class="inline" th:action="@{/admin/members}" method="get" style="margin-bottom:14px;max-width:420px">
+            <input name="keyword" th:value="${keyword}" placeholder="이메일 또는 이름"><button class="btn line sm" type="submit">검색</button></form>
+        <table class="tbl">
+            <tr><th>번호</th><th>이메일</th><th>이름</th><th>연락처</th><th>권한</th><th>가입일</th><th>상태</th></tr>
+            <tr th:each="m : ${page.content}">
+                <td th:text="${m.id}"></td><td th:text="${m.email}"></td><td th:text="${m.name}"></td><td th:text="${m.phone}"></td>
+                <td><span class="tag" th:classappend="${m.admin} ? 't'" th:text="${m.role}"></span></td>
+                <td th:text="${#temporals.format(m.createdAt, 'yyyy.MM.dd')}"></td>
+                <td th:text="${m.deleted} ? '탈퇴' : '정상'"></td>
+            </tr>
+        </table>
+        <div class="pager" th:if="${page.totalPages > 1}">
+            <a th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}" th:href="@{/admin/members(page=${i},keyword=${keyword})}" th:text="${i + 1}" th:classappend="${i == page.number} ? 'on'"></a>
+        </div>
+    </main>
+</div>
+</body>
+</html>

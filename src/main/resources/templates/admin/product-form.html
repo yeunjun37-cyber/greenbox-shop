@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('상품 등록')}"></head>
+<body>
+<div class="admin">
+    <aside th:replace="~{fragments/layout :: adminSide(${menu})}"></aside>
+    <main>
+        <h2 style="margin-top:0" th:text="${form.id} ? '상품 수정' : '상품 등록'"></h2>
+        <form th:action="@{/admin/products}" th:object="${form}" method="post" enctype="multipart/form-data" class="box" style="max-width:760px">
+            <input type="hidden" th:field="*{id}">
+            <input type="hidden" th:field="*{thumbnail}">
+            <div class="form-row"><span>상품명</span><div><input th:field="*{name}" id="np-name"><div class="err" th:errors="*{name}"></div></div></div>
+            <div class="form-row"><span>카테고리</span><select th:field="*{categoryId}" id="np-cat"><option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"></option></select></div>
+            <div class="form-row"><span>가격 / 재고</span><div class="inline"><input th:field="*{price}" id="np-price" placeholder="가격"><input th:field="*{stock}" id="np-stock" placeholder="재고"></div></div>
+            <div class="err" th:errors="*{price}"></div><div class="err" th:errors="*{stock}"></div>
+            <div class="form-row"><span>난이도 / 광량</span><div class="inline">
+                <select th:field="*{difficulty}" id="np-diff"><option value="">해당 없음(용품)</option><option th:each="d : ${difficulties}" th:value="${d}" th:text="${d.label}"></option></select>
+                <select th:field="*{light}" id="np-light"><option value="">해당 없음</option><option th:each="l : ${lights}" th:value="${l}" th:text="${l.label}"></option></select></div></div>
+            <div class="form-row"><span>물주기(일)</span><div class="inline"><input th:field="*{waterCycle}" id="np-water" type="number" min="1" style="max-width:140px">
+                <label><input type="checkbox" th:field="*{petSafe}" id="np-pet"> 반려동물 안전</label></div></div>
+            <div class="form-row" style="align-items:start"><span>상세 설명</span><textarea th:field="*{description}" id="np-desc"></textarea></div>
+            <div class="form-row"><span>대표 이미지</span><div><input type="file" th:field="*{thumbnailFile}" accept="image/*">
+                <img th:if="*{thumbnail}" th:src="*{thumbnail}" style="height:70px;margin-top:8px"></div></div>
+            <button class="btn" type="submit" id="np-save">저장</button>
+            <a class="btn line" th:href="@{/admin/products}">취소</a>
+        </form>
+    </main>
+</div>
+</body>
+</html>
